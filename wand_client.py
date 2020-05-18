@@ -4,15 +4,10 @@ import time
 import os
 import threading
 
+# Hostname and port of the TCP server
 rhost = '192.168.4.1'
-#rhost = '127.0.0.1'
 rport = 5555
 
-# def acking():
-#     while True:
-#         s.send('ack'.encode())
-#         print('system: ack sended')
-#         time.sleep(10)
 
 custom_command = input('Insert custom command (swipe the wand down twice to trigger): \n>> ')
 custom_command2 = input('Insert custom command (swipe the wand down tree times to trigger): \n>> ')
@@ -25,11 +20,11 @@ s.send(mode.encode())
 
 
 
-def custom(command):
+def custom(command): # Execute custom command
     print(f'executing: {command}')
     os.system(command)
 
-def switch_screen(direction):
+def switch_screen(direction): # Screen switch utility
     pyautogui.keyUp('ctrl')
     pyautogui.keyDown('ctrl')
     pyautogui.press(direction)
@@ -44,17 +39,17 @@ while True:
     msg = s.recv(1024).strip().decode()
     print(msg)
 
-    if msg == 'yah':
+    if msg == 'left':
         switch_screen('right')
 
-    elif msg == 'space':
+    elif msg == 'up':
         pyautogui.press('space')
 
-    elif msg == "nope":
+    elif msg == "right":
         switch_screen('left')
 
 
-    elif msg == "back":
+    elif msg == "down":
         pyautogui.press('left')
     elif msg == "custom":
         t = threading.Thread(target = custom, args = (custom_command, ))
