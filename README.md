@@ -19,7 +19,7 @@ This program is used to connect to the magic wand, receive its commands, and con
 | ----------- | ----------- |
 | Left swipe | Switch workspace (screen) right |
 | Right swipe | Switch workspace (screen) left |
-| Up swipe | Type <space> key|
-| Down swipe x1 | Type <left> key |
+| Up swipe | Type "space" key|
+| Down swipe x1 | Type "left" key |
 | Down swipe x1 | Execute custom command 1 |
 | Down swipe x1 | Execute custom command 2 |
