@@ -26,12 +26,6 @@ void black() {
   digitalWrite(bpin, LOW);
 }
 
-void apds_init() {
-  if (!APDS.begin()) {
-    Serial.println("Error initializing APDS9960 sensor!");
-  }
-}
-
 void AP_init() {
   if (WiFi.status() == WL_NO_MODULE) {
     Serial.println("Communication with WiFi module failed!");
@@ -97,7 +91,6 @@ void setup() {
   AP_init();
   IMU_init();
   black();
-  apds_init();
 }
 
 void loop() {
@@ -128,138 +121,107 @@ void loop() {
     // Serial.println("new client"); // print a message out the serial port
 
     char msg = client.read();
-    if (msg == 'G') {
-      Using_Gesture = true;
-    }
     while (client.connected()) { // loop while the client's connected
       client.read();
       digitalWrite(gpin, HIGH);
       digitalWrite(rpin, LOW);
       digitalWrite(bpin, LOW);
-      if (Using_Gesture) {
-        if (APDS.gestureAvailable()) {
-          // a gesture was detected, read and print to serial monitor
-          int gesture = APDS.readGesture();
 
-          switch (gesture) {
-          case GESTURE_UP:
-            client.write("space");
-            break;
+      m = millis() - oldtime;
+      while (m < 100) {
+        m = millis() - oldtime;
+      }
 
-          case GESTURE_DOWN:
-            client.write("back");
-            break;
+      if (IMU.gyroscopeAvailable()) {
+        IMU.readGyroscope(x, y, z);
+      }
 
-          case GESTURE_LEFT:
-            client.write("yah");
-            break;
-
-          case GESTURE_RIGHT:
-            client.write("nope");
-            break;
-
-          default:
-            // ignore
-            break;
+      if (z > std_force) {
+        client.write("left");
+        // Serial.println("yah");
+        black();
+        digitalWrite(bpin, HIGH);
+        while (z > 10) {
+          if (IMU.gyroscopeAvailable()) {
+            IMU.readGyroscope(x, y, z);
           }
         }
+        oldtime = millis();
+
       } else {
-        m = millis() - oldtime;
-        while (m < 100) {
-          m = millis() - oldtime;
-        }
-
-        if (IMU.gyroscopeAvailable()) {
-          IMU.readGyroscope(x, y, z);
-        }
-
-        if (z > std_force) {
-          client.write("left");
-          // Serial.println("yah");
+        if (z < -std_force) {
+          client.write("right");
+          // Serial.println("nope");
           black();
           digitalWrite(bpin, HIGH);
-          while (z > 10) {
+          while (z < -10) {
             if (IMU.gyroscopeAvailable()) {
               IMU.readGyroscope(x, y, z);
             }
           }
           oldtime = millis();
-
         } else {
-          if (z < -std_force) {
-            client.write("right");
-            // Serial.println("nope");
+          if (y > std_force) {
+            client.write("up");
+            // Serial.println("space");
             black();
             digitalWrite(bpin, HIGH);
-            while (z < -10) {
+            while (y > 10) {
               if (IMU.gyroscopeAvailable()) {
                 IMU.readGyroscope(x, y, z);
               }
             }
             oldtime = millis();
           } else {
-            if (y > std_force) {
-              client.write("up");
-              // Serial.println("space");
-              black();
-              digitalWrite(bpin, HIGH);
-              while (y > 10) {
+            if (y < -std_force) { // first down
+              while (y < -10) {
                 if (IMU.gyroscopeAvailable()) {
                   IMU.readGyroscope(x, y, z);
                 }
               }
               oldtime = millis();
-            } else {
-              if (y < -std_force) { // first down
-                while (y < -10) {
-                  if (IMU.gyroscopeAvailable()) {
-                    IMU.readGyroscope(x, y, z);
-                  }
-                }
-                oldtime = millis();
+              m = millis() - oldtime;
+              bool custom_gesture_token = false;
+              bool custom_gesture_token2 = false;
+              black();
+              digitalWrite(rpin, HIGH);
+              while (m < 300) {
                 m = millis() - oldtime;
-                bool custom_gesture_token = false;
-                bool custom_gesture_token2 = false;
-                black();
-                digitalWrite(rpin, HIGH);
-                while (m < 300) {
+                if (IMU.gyroscopeAvailable()) {
+                  IMU.readGyroscope(x, y, z);
+                }
+                if (y < -std_force) { // second down
+                  custom_gesture_token = true;
+                  while (y < -10) {
+                    if (IMU.gyroscopeAvailable()) {
+                      IMU.readGyroscope(x, y, z);
+                    }
+                  }
+                  oldtime = millis();
                   m = millis() - oldtime;
-                  if (IMU.gyroscopeAvailable()) {
-                    IMU.readGyroscope(x, y, z);
-                  }
-                  if (y < -std_force) { // second down
-                    custom_gesture_token = true;
-                    while (y < -10) {
-                      if (IMU.gyroscopeAvailable()) {
-                        IMU.readGyroscope(x, y, z);
-                      }
-                    }
-                    oldtime = millis();
+                  while (m < 300) {
                     m = millis() - oldtime;
-                    while (m < 300) {
-                      m = millis() - oldtime;
-                      if (IMU.gyroscopeAvailable()) {
-                        IMU.readGyroscope(x, y, z);
-                      }
-                      if (y < -std_force) { // third down
-                        client.write("custom2");
-                        // Serial.println("back");
-                        custom_gesture_token2 = true;
-                        break;
-                      }
+                    if (IMU.gyroscopeAvailable()) {
+                      IMU.readGyroscope(x, y, z);
+                    }
+                    if (y < -std_force) { // third down
+                      client.write("custom2");
+                      // Serial.println("back");
+                      custom_gesture_token2 = true;
+                      break;
                     }
                   }
                 }
-                if (custom_gesture_token) {
-                  if (custom_gesture_token2) {
-                    oldtime = millis();
-                  } else {
-                    client.write("custom");
-                  }
+              }
+              if (custom_gesture_token) {
+                if (custom_gesture_token2) {
+                  oldtime = millis();
                 } else {
-                  client.write("down");
-                  // Serial.println("back");
+                  client.write("custom");
                 }
+              } else {
+                client.write("down");
+                // Serial.println("back");
               }
             }
           }

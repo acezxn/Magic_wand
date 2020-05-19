@@ -14,6 +14,10 @@ This device is intended to be used in a presentation to ​extend the presenter'
 ## the python client
 This program is used to connect to the magic wand, receive its commands, and control the computer using keystrokes. The program also allows the presenter to execute up to two OS commands.
 
+## the arduino code
+The code only supports the Arduino nano 33 iot. The ssid and password can be customized in arduino_secrets.h
+
+```
 ### Control cheat sheet
 | Gesture | ability |
 | ----------- | ----------- |
