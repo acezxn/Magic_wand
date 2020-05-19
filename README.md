@@ -17,7 +17,7 @@ This program is used to connect to the magic wand, receive its commands, and con
 ## the arduino code
 The code only supports the Arduino nano 33 iot. The ssid and password can be customized in arduino_secrets.h
 
-```
+
 ### Control cheat sheet
 | Gesture | ability |
 | ----------- | ----------- |
