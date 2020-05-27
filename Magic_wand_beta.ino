@@ -15,7 +15,6 @@ int led = LED_BUILTIN;
 int rpin = 5;
 int gpin = 6;
 int bpin = 9;
-bool Using_Gesture = false;
 
 int status = WL_IDLE_STATUS;
 WiFiServer server(5555);
