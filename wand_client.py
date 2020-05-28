@@ -66,7 +66,7 @@ try:
 
         elif msg == "down": # swipe down
             pyautogui.press('left')
-        elif msg == "custom":
+        elif msg == "custom": 
             t = threading.Thread(target = custom, args = (custom_command, ))
             t.start()
         elif msg == "custom2":
